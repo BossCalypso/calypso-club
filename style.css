@@ -1,0 +1,123 @@
+/**
+ * Body CSS
+ */
+/*Navigation*/
+:root{
+    --line-border-fill: #3498db;
+    --line-border-empty: #e0e0e0;
+}
+*{
+    box-sizing: border-box;
+}
+.container{
+    text-align: center;
+}
+.progress-container{
+    display: flex;
+    justify-content: space-between;
+    position: relative;
+    margin-bottom: 30px;
+    max-width: 100%;
+    width: 350px;
+}
+.progress-container::before{
+    content: '';
+    background-color: var(--line-border-empty);
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 4px;
+    width: 100%;
+    z-index: -1;
+}
+.progress{
+    background-color: var(--line-border-fill);
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    height: 4px;
+    width: 0%;
+    z-index: -1;
+    transition: .4s ease;
+}
+.circle{
+    background-color: #fff;
+    color: #999;
+    border-radius: 50%;
+    height: 30px;
+    width: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 3px solid var(--line-border-empty);
+    transition: .4s ease;
+}
+.circle.active{
+    background-color: var(--line-border-fill);
+}
+.btn-nav{
+    background-color: var(--line-border-fill);
+    color: #fff;
+    border: 0;
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 8px 30px;
+    margin: 5px;
+    font-size: 14px;
+}
+.btn-nav:active{
+    transform: scale(.98);
+}
+.btn-nav:focus{
+    outline: 0;
+}
+.btn-nav:disabled{
+    background-color: var(--line-border-empty);
+    cursor: not-allowed;
+}
+/*navigation*/
+html,
+body {
+    height: 100%;
+}
+
+html,
+body,
+input,
+textarea,
+button {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.004);
+}
+
+/**
+ * Sidebar CSS
+ */
+
+#sidebar {
+    background-color: #2196F3;
+    padding: 15px;
+}
+
+@media (min-width: 768px) {
+    #sidebar {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        width: 180px;
+        height: 100%;
+        padding-top: 30px;
+    }
+}
+
+/**
+ * Content CSS
+ */
+@media (min-width: 768px) {
+    #content {
+        margin-left: 180px;
+    }
+}
