@@ -19,11 +19,11 @@ function addToLocalStorage(ids) {
             productsId.push(id)
         }
     }
-    localStorage.setItem('productsID', JSON.stringify(productsId))
+    localStorage.setItem('products', JSON.stringify(productsId))
     return productsId
 }
 
 export function getFromLocalStorage() {
-    return JSON.parse(localStorage.getItem('productsID') || '[]')
+    return JSON.parse(localStorage.getItem('products') || '[]')
 }
 

@@ -5,20 +5,21 @@ const filter = form.querySelector('#filter');
 const url = form.querySelector('#url')
 const submitBtn = form.querySelector('button');
 
-
+filter.addEventListener('change', getFields)
 form.addEventListener('submit', submitFormHandler);
-// window.addEventListener('load', getFields);
-window.addEventListener('load', applyFilter);
+// window.addEventListener('load', renderCard(0));
+
+submitBtn.disabled = true;
 
 function submitFormHandler(event) {
     event.preventDefault();
-    submitBtn.disabled = true;
-    getFields();
+    getFields(event);
     submitBtn.disabled = false;
 }
 
 async function requestToServer(options) {
     const [url, action, params] = options;
+
     return await fetch(url, {
         method: 'POST',
         headers: {
@@ -33,7 +34,6 @@ async function requestToServer(options) {
 }
 
 async function readResponse(response) {
-
     const reader = response.body.getReader();
     const contentLength = +response.headers.get('Content-Length');
     let receivedLength = 0;
@@ -55,34 +55,125 @@ async function readResponse(response) {
         chunksAll.set(chunk, position);
         position += chunk.length;
     }
-
     return JSON.parse(new TextDecoder("utf-8").decode(chunksAll));
 }
 
 async function getIds(params) {
     //Async request to server for get ids products
     const response = await requestToServer([url.value, 'get_ids', params]);
+
+    if (response.statusText !== 'OK') {
+        await getIds(params);
+        console.log(response.statusText);
+    }
     return readResponse(response);
 }
 
 async function getItems(params) {
     const ids = await getIds(params);
-    //Async request to server for get ids products
-    const response = await requestToServer([url.value, 'get_items', {"ids": ids.result}]);
-    return await readResponse(response);
-}
-
-async function getFields() {
-    //Async request to server for get ids products
+    //Async request to server for get items products
     const response = await requestToServer([
         url.value,
-        'get_fields',
-        {"field": filter.value, "offset": 3, "limit": 5}]);
+        'get_items',
+        {"ids": ids.result}
+    ]);
+
+    if (response.statusText !== 'OK') {
+        await getItems(params);
+        console.log(response.statusText);
+    }
     return await readResponse(response);
 }
 
-async function applyFilter() {
-    const params = {offset: 0, limit: 50};
+async function filterProducts(options) {
+    const [result, params, event] = options;
+    let output = [];
+    if (Object.keys(result).length) {
+        const nameItem = result.result.reduce((a, i) => {
+            if (!a.find(v => v === i)) {
+                a.push(i)
+            }
+            return a;
+        }, []);
+
+        nameItem.forEach(i => {
+            output.push(`<option value= '${i}'>${i}</option>`);
+        });
+    } else {
+
+    }
+    submitBtn.disabled = false;
+    let defText = '';
+    switch (event.target.value) {
+        case 'product':
+            defText = 'Выберите название товара из списка';
+            break;
+        case 'price':
+            defText = 'Выберите стоимость товара';
+            break;
+        case 'brand':
+            defText = 'Выберите Бренд товара';
+            break;
+    }
+    if (filter.value === 'no-filters') {
+        form.querySelector('#inner-filter').innerHTML = ''
+        form.querySelector('#inner-filter').style.display = 'none';
+    } else {
+        form.querySelector('#inner-filter').innerHTML = ` 
+                     <select id="inner-filter-select" class="mui-dropdown">
+                             <option value= 'null' selected>${defText}:</option> 
+                            ${output.join('')}  
+                    </select>                                            
+        `;
+        form.querySelector('#inner-filter').style.display = 'block';
+    }
+
+    const innerForm = document.getElementById('inner-filter-select')
+        .addEventListener('change', (e) => {
+            const name = event.target.value;
+            const params = {
+                [name]: e.target.value
+            };
+            console.log(result, params, event)
+        });
+
+
+}
+
+async function getFields(e) {
+    //Async request to server for get fields products
+    const response = await requestToServer([
+        url.value,
+        'get_fields'
+    ]);
+    if (response.statusText !== 'OK') {
+        await getFields(e);
+        console.log(response.statusText);
+    }
+
+    const fields = await readResponse(response);
+
+    switch (filter.value) {
+        case fields.result.find(i => i === filter.value):
+            //Async request to server for get fields products
+            const response = await requestToServer([
+                url.value,
+                'get_fields',
+                {"field": filter.value, "offset": 0, "limit": 50}]);
+
+            if (response.statusText !== 'OK') {
+                await getFields(e);
+                console.log(response.statusText);
+            }
+            await filterProducts([await readResponse(response), filter.value, e]);
+            break;
+        default:
+            await filterProducts([{}, filter.value, e]);
+    }
+}
+
+async function applyFilter(offset) {
+    const params = {offset: offset, limit: 50};
     const productsCard = await getItems(params);
     const result = productsCard.result.reduce((o, i) => {
         if (!o.find(v => v.id === i.id)) {
@@ -90,17 +181,38 @@ async function applyFilter() {
         }
         return o;
     }, []);
-    console.log(result.length,params.limit)
     if (result.length < 50) {
-        let items = await getItems({offset: 50, limit: 1});
+        let items = await getItems({
+            offset: params.limit,
+            limit: params.limit - result.length
+        });
         for (let item of items.result) {
-            if(!result.find(v =>v.id === item.id)){
+            if (!result.find(v => v.id === item.id)) {
                 result.push(item);
             }
         }
+        return result;
     }
+    return result;
+}
 
+function toCard(product) {
+    return `
+            <div class="mui--text-headline">${product.product}</div>
+            <div class="mui--text-black-54"><b>BRAND: ${product.brand}</b></div>
+            <div>PRICE: ${product.price}</div>
+            <div>ID: ${product.id}</div>
+            <br>
+`
+}
 
+async function renderCard(offset) {
+    const parent = document.getElementById('list_products');
+    const productsCard = await applyFilter(offset);
+    const html = Object.keys(productsCard).length
+        ? productsCard.map(toCard).join('')
+        : `<div class="mui--text-black-54 mui--text-body2">Список товаров пока пуст</div>`;
+    parent.innerHTML = html;
 }
 
 (function navigation() {
@@ -110,19 +222,25 @@ async function applyFilter() {
     const circles = document.querySelectorAll('.circle');
 
     let currentActive = 1;
+    let offset = 0;
 
-    next.addEventListener('click', () => {
+    next.addEventListener('click', async () => {
         currentActive++;
+        offset += 50;
         if (currentActive > circles.length) {
             currentActive = circles.length;
         }
+        await renderCard(offset);
         update();
     });
-    prev.addEventListener('click', () => {
+    prev.addEventListener('click', async () => {
         currentActive--;
+        offset -= 50;
+
         if (currentActive < 1) {
             currentActive = 1;
         }
+        const productsCard = await applyFilter(offset);
         update();
     })
 

@@ -6,10 +6,28 @@
     --line-border-fill: #3498db;
     --line-border-empty: #e0e0e0;
 }
+.mui-dropdown__menu {
+    position: absolute;
+    display: inline-block;
+    min-width: 160px;
+    padding: 5px 0;
+    margin: 2px 0 0;
+    list-style: none;
+    font-size: 14px;
+    text-align: left;
+    background-color: #FFF;
+    border-radius: 2px;
+    z-index: 1;
+    background-clip: padding-box;
+    max-height: 160px;
+    overflow-y: scroll;
+    cursor: pointer;
+}
 *{
     box-sizing: border-box;
 }
 .container{
+    display: inline-block;
     text-align: center;
 }
 .progress-container{
@@ -55,7 +73,7 @@
     transition: .4s ease;
 }
 .circle.active{
-    background-color: var(--line-border-fill);
+    border-color: var(--line-border-fill);
 }
 .btn-nav{
     background-color: var(--line-border-fill);

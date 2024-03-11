@@ -22,15 +22,18 @@
                 <div class="mui-select">
                     <select id="filter">
                         <option value="no-filters" selected>Без фильтра</option>
-                        <option value="product">Название</option>
+                        <option value="product">Название товара</option>
                         <option value="price">Цена</option>
                         <option value="brand">Бренд</option>
                     </select>
-                    <label>Выбрать из списка</label>
+                    <label>Выберите фильтр из списка</label>
+                    <div class="mui-select" id="inner-filter" style="display: none;">
+
+                    </div>
                 </div>
                 <div class="mui-textfield">
                     <input type="number" min="50" value="50" id="count">
-                    <label>Количество на странице</label>
+                    <label>Количество товаров на странице</label>
                 </div>
                 <div class="mui-select">
                     <select id="url">
@@ -39,8 +42,6 @@
                     </select>
                     <label>Выбрать из списка URL</label>
                 </div>
-
-
                 <button type="submit" class="mui-btn mui-btn--primary ">Применить фильтр</button>
             </form>
             <br>
@@ -48,11 +49,11 @@
             <div class="mui-divider"></div>
             <br>
             <div id="list_products">
-<!--                <div class="mui&#45;&#45;text-headline">Название товара</div>-->
-<!--                <div class="mui&#45;&#45;text-black-54"><b>BRAND</b></div>-->
-<!--                <div>PRICE:</div>-->
-<!--                <div>ID:</div>-->
-<!--                <br>-->
+<!--                                <div class="mui&#45;&#45;text-headline">Название товара</div>-->
+<!--                                <div class="mui&#45;&#45;text-black-54"><b>BRAND</b></div>-->
+<!--                                <div>PRICE:</div>-->
+<!--                                <div>ID:</div>-->
+<!--                                <br>-->
             </div>
             <div class="container">
                 <div class="progress-container">
